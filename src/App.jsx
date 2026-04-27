@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import Chip from '@mui/material/Chip'
 import { getDatos, guardarVisita, invalidarCache } from './api'
 
 const FORM_INICIAL = {
@@ -10,13 +13,13 @@ const FORM_INICIAL = {
   mail: '',
   rubro: '',
   unidades: '',
-  marcas: '',
+  marcas: [],
   cantNuevas: '',
   precioNuevas: '',
   proveedor: '',
   cantRecons: '',
   precioRecons: '',
-  productos: '',
+  productos: [],
   observaciones: '',
 }
 
@@ -63,7 +66,13 @@ export default function App() {
     setEnviando(true)
     setResultado(null)
     try {
-      await guardarVisita({ ...form, totalNuevas, totalRecons })
+      await guardarVisita({
+        ...form,
+        marcas: form.marcas.join(', '),
+        productos: form.productos.join(', '),
+        totalNuevas,
+        totalRecons,
+      })
       setResultado('ok')
       setForm(FORM_INICIAL)
       setCiudadesFiltradas([])
@@ -97,7 +106,10 @@ export default function App() {
   return (
     <div className="container">
       <header className="header">
-        <h1>Registro de Visita</h1>
+        <div className="header-banner">
+          <img src="/recmil (2).png" alt="RecMil" className="header-logo" />
+        </div>
+        <p className="header-subtitulo">Registro de Visita</p>
       </header>
 
       {resultado === 'ok' && (
@@ -151,19 +163,38 @@ export default function App() {
             <input name="encargado" value={form.encargado} onChange={handleChange} placeholder="Juan García" />
           </Field>
           <Field label="Celular">
-            <input name="celular" type="tel" value={form.celular} onChange={handleChange} placeholder="+54 9 11 1234-5678" />
+            <input name="celular" type="tel" value={form.celular} onChange={handleChange} placeholder="1112345678" />
           </Field>
           <Field label="Email">
             <input name="mail" type="email" value={form.mail} onChange={handleChange} placeholder="contacto@empresa.com" />
           </Field>
           <Field label="Rubro">
-            <input name="rubro" value={form.rubro} onChange={handleChange} placeholder="Transporte, Agro..." />
+            <select name="rubro" value={form.rubro} onChange={handleChange}>
+              <option value="">Seleccioná un rubro</option>
+              {(datos.rubros || []).map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
           </Field>
           <Field label="Cantidad de Unidades">
             <input name="unidades" type="number" min="0" value={form.unidades} onChange={handleChange} />
           </Field>
           <Field label="Marcas">
-            <input name="marcas" value={form.marcas} onChange={handleChange} />
+            <Autocomplete
+              multiple
+              options={datos.marcas || []}
+              value={form.marcas}
+              onChange={(_, newValue) => setForm(prev => ({ ...prev, marcas: newValue }))}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip label={option} size="small" {...getTagProps({ index })} key={option} />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Buscá o seleccioná marcas" size="small" />
+              )}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '9px', fontSize: '1rem' } }}
+            />
           </Field>
         </section>
 
@@ -205,7 +236,21 @@ export default function App() {
           <h2 className="seccion-titulo">Adicionales</h2>
 
           <Field label="Productos">
-            <input name="productos" value={form.productos} onChange={handleChange} />
+            <Autocomplete
+              multiple
+              options={datos.productos || []}
+              value={form.productos}
+              onChange={(_, newValue) => setForm(prev => ({ ...prev, productos: newValue }))}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip label={option} size="small" {...getTagProps({ index })} key={option} />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Buscá o seleccioná productos" size="small" />
+              )}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '9px', fontSize: '1rem' } }}
+            />
           </Field>
           <Field label="Observaciones">
             <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={3} />

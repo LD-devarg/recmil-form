@@ -1,6 +1,5 @@
-// ─── Reemplazá esta URL con la de tu Web App de Apps Script ───
-// Deploy → Manage deployments → copiar "Web app URL"
-const WEB_APP_URL = 'PEGAR_URL_DEL_WEB_APP_AQUI';
+
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbydjgbQF9B5ZTsPMmmX0v56qi1C9mSk8hlHJeHr6z5Erqe2aqunnN26CWnrSlgULyiDiw/exec';
 
 const CACHE_KEY = 'recmil_datos_v1';
 const CACHE_TTL = 60 * 60 * 1000; // 1 hora en ms
@@ -20,9 +19,11 @@ export async function getDatos() {
     }
   }
 
-  const res = await fetch(`${WEB_APP_URL}?action=datos`);
+  const res = await fetch(`${WEB_APP_URL}?action=datos`, { redirect: 'follow' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
+  const text = await res.text();
+  if (text.startsWith('<')) throw new Error('El Web App devolvió HTML — verificá que el acceso sea "Anyone" en el deploy de Apps Script');
+  const data = JSON.parse(text);
   if (data.error) throw new Error(data.error);
 
   localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
