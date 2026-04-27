@@ -39,6 +39,7 @@ export default function App() {
   const [ciudadesFiltradas, setCiudadesFiltradas] = useState([])
   const [enviando, setEnviando] = useState(false)
   const [resultado, setResultado] = useState(null) // 'ok' | 'error'
+  const [recargando, setRecargando] = useState(false)
 
   useEffect(() => {
     getDatos()
@@ -89,6 +90,15 @@ export default function App() {
     getDatos().then(setDatos).catch(err => setErrorCarga(err.message))
   }
 
+  const recargarDatos = () => {
+    setRecargando(true)
+    invalidarCache()
+    getDatos()
+      .then(setDatos)
+      .catch(err => setErrorCarga(err.message))
+      .finally(() => setRecargando(false))
+  }
+
   if (errorCarga) return (
     <div className="pantalla-centrada">
       <p className="texto-error">Error al cargar datos: {errorCarga}</p>
@@ -107,9 +117,14 @@ export default function App() {
     <div className="container">
       <header className="header">
         <div className="header-banner">
-          <img src="/recmil (2).png" alt="RecMil" className="header-logo" />
+          <img src={`${import.meta.env.BASE_URL}recmil.png`} alt="RecMil" className="header-logo" />
         </div>
-        <p className="header-subtitulo">Registro de Visita</p>
+        <div className="header-bar">
+          <p className="header-subtitulo">Registro de Visita</p>
+          <button className="btn-recargar" onClick={recargarDatos} disabled={recargando} title="Recargar datos">
+            {recargando ? '...' : '↻'}
+          </button>
+        </div>
       </header>
 
       {resultado === 'ok' && (
@@ -125,7 +140,11 @@ export default function App() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} noValidate>
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault() }}
+      >
 
         {/* ── Vendedor y Ciudad ── */}
         <section className="seccion">
