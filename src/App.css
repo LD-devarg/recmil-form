@@ -39,16 +39,19 @@ body {
 
 .header-banner {
   width: 100%;
-  height: 80px;
+  height: 90px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
 }
 
 .header-logo {
   width: 100%;
-  height: 260px;
-  object-fit: cover;
-  object-position: center 52%;
-  margin-top: -90px;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
 }
 
 .header-subtitulo {
