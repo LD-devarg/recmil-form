@@ -1,5 +1,5 @@
 
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbydjgbQF9B5ZTsPMmmX0v56qi1C9mSk8hlHJeHr6z5Erqe2aqunnN26CWnrSlgULyiDiw/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyR_8-AiLBPgA4KcY1nOg93umnlG_SrmGWEc-ylrA0oBSO5-zKzezqTip1JHJnnBIKJcg/exec';
 
 const CACHE_KEY = 'recmil_datos_v2';
 const CACHE_TTL = 60 * 60 * 1000; // 1 hora en ms

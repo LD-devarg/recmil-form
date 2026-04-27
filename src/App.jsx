@@ -62,13 +62,28 @@ export default function App() {
   const totalNuevas = (Number(form.cantNuevas) || 0) * (Number(form.precioNuevas) || 0)
   const totalRecons = (Number(form.cantRecons) || 0) * (Number(form.precioRecons) || 0)
 
+  const parseCelular = (celular) => {
+    let num = celular.replace(/\D/g, '')
+    if (!num.startsWith('549')) num = '549' + num
+    return num
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setEnviando(true)
     setResultado(null)
+
+    const requeridos = ['vendedor', 'ciudad', 'razonSocial', 'encargado', 'celular', 'mail', 'rubro', 'unidades', 'cantNuevas', 'precioNuevas', 'proveedor', 'cantRecons', 'precioRecons']
+    const falta = requeridos.some(c => !String(form[c]).trim()) || form.marcas.length === 0 || form.productos.length === 0
+    if (falta) {
+      setResultado('validacion')
+      return
+    }
+
+    setEnviando(true)
     try {
       await guardarVisita({
         ...form,
+        celular: parseCelular(form.celular),
         marcas: form.marcas.join(', '),
         productos: form.productos.join(', '),
         totalNuevas,
@@ -134,6 +149,12 @@ export default function App() {
         </div>
       )}
 
+      {resultado === 'validacion' && (
+        <div className="alerta alerta-error">
+          ✗ Completá todos los campos obligatorios antes de enviar.
+        </div>
+      )}
+
       {resultado === 'error' && (
         <div className="alerta alerta-error">
           ✗ Hubo un error al guardar. Intentá de nuevo.
@@ -178,16 +199,16 @@ export default function App() {
           <Field label="Razón Social" required>
             <input name="razonSocial" value={form.razonSocial} onChange={handleChange} required placeholder="Empresa S.A." />
           </Field>
-          <Field label="Nombre Encargado">
+          <Field label="Nombre Encargado" required>
             <input name="encargado" value={form.encargado} onChange={handleChange} placeholder="Juan García" />
           </Field>
-          <Field label="Celular">
+          <Field label="Celular" required>
             <input name="celular" type="tel" value={form.celular} onChange={handleChange} placeholder="1112345678" />
           </Field>
-          <Field label="Email">
+          <Field label="Email" required>
             <input name="mail" type="email" value={form.mail} onChange={handleChange} placeholder="contacto@empresa.com" />
           </Field>
-          <Field label="Rubro">
+          <Field label="Rubro" required>
             <select name="rubro" value={form.rubro} onChange={handleChange}>
               <option value="">Seleccioná un rubro</option>
               {(datos.rubros || []).map(r => (
@@ -195,10 +216,10 @@ export default function App() {
               ))}
             </select>
           </Field>
-          <Field label="Cantidad de Unidades">
+          <Field label="Cantidad de Unidades" required>
             <input name="unidades" type="number" min="0" value={form.unidades} onChange={handleChange} />
           </Field>
-          <Field label="Marcas">
+          <Field label="Marcas" required>
             <Autocomplete
               multiple
               options={datos.marcas || []}
@@ -221,10 +242,10 @@ export default function App() {
         <section className="seccion">
           <h2 className="seccion-titulo">Cubiertas Nuevas</h2>
 
-          <Field label="Cantidad mensual">
+          <Field label="Cantidad mensual" required>
             <input name="cantNuevas" type="number" min="0" value={form.cantNuevas} onChange={handleChange} />
           </Field>
-          <Field label="Precio unitario">
+          <Field label="Precio unitario" required>
             <input name="precioNuevas" type="number" min="0" step="0.01" value={form.precioNuevas} onChange={handleChange} />
           </Field>
           {totalNuevas > 0 && (
@@ -236,13 +257,13 @@ export default function App() {
         <section className="seccion">
           <h2 className="seccion-titulo">Reconstrucción</h2>
 
-          <Field label="Proveedor">
+          <Field label="Proveedor" required>
             <input name="proveedor" value={form.proveedor} onChange={handleChange} />
           </Field>
-          <Field label="Cantidad mensual">
+          <Field label="Cantidad mensual" required>
             <input name="cantRecons" type="number" min="0" value={form.cantRecons} onChange={handleChange} />
           </Field>
-          <Field label="Precio unitario">
+          <Field label="Precio unitario" required>
             <input name="precioRecons" type="number" min="0" step="0.01" value={form.precioRecons} onChange={handleChange} />
           </Field>
           {totalRecons > 0 && (
@@ -254,7 +275,7 @@ export default function App() {
         <section className="seccion">
           <h2 className="seccion-titulo">Adicionales</h2>
 
-          <Field label="Productos">
+          <Field label="Productos" required>
             <Autocomplete
               multiple
               options={datos.productos || []}
