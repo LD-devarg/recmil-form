@@ -273,7 +273,7 @@ export default function App() {
 
         {/* ── Adicionales ── */}
         <section className="seccion">
-          <h2 className="seccion-titulo">Adicionales</h2>
+          <h2 className="seccion-titulo">Productos</h2>
 
           <Field label="Productos" required>
             <Autocomplete
@@ -292,9 +292,12 @@ export default function App() {
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '9px', fontSize: '1rem' } }}
             />
           </Field>
-          <Field label="Observaciones">
-            <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={3} />
-          </Field>
+        </section>
+        <section className="seccion">
+          <h2 className="seccion-titulo">Observaciones</h2>
+            <Field label="Observaciones">
+              <textarea name="observaciones" value={form.observaciones} onChange={handleChange} rows={3} />
+            </Field>
         </section>
 
         <button type="submit" className="btn-submit" disabled={enviando}>
