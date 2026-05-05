@@ -1,5 +1,5 @@
 
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbywqeJyKlsd0Jio2ZgbO_BtuGiinISy1W5N38ZnJ7iKS2dbfksxO9r8U1HhUlLttOUF/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzbBQkK5rC5OFMK1GNmCuyIWjDWGb_khiY0DfaAJfKCtZmg-CS8Un0WXjFVe_qXdyauZQ/exec';
 
 const CACHE_KEY = 'recmil_datos_v3';
 const CACHE_TTL = 60 * 60 * 1000; // 1 hora en ms
@@ -48,5 +48,5 @@ export async function guardarVisita(visita) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
   if (!json.ok) throw new Error(json.error || 'Error desconocido');
-  return json;
+  return json; // incluye mailError si hubo problema con el mail
 }

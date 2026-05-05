@@ -235,6 +235,7 @@ textarea {
   padding: 0.85rem 1rem;
   border-radius: 10px;
   font-size: 0.95rem;
+  scroll-margin-top: 1rem;
 }
 
 .alerta-ok {
@@ -344,6 +345,22 @@ textarea {
 
 .btn-modal-no:active {
   background: #e4e6e9;
+}
+
+.modal-input-mail {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  text-align: center;
+}
+
+.modal-input-mail:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
 }
 
 @keyframes fadeIn {

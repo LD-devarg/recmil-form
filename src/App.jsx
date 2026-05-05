@@ -41,6 +41,8 @@ export default function App() {
   const [resultado, setResultado] = useState(null) // 'ok' | 'error'
   const [recargando, setRecargando] = useState(false)
   const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
+  const [pedirMailCopia, setPedirMailCopia] = useState(false)
+  const [mailCopia, setMailCopia] = useState('')
 
   useEffect(() => {
     getDatos()
@@ -85,20 +87,27 @@ export default function App() {
 
   const confirmarEnvio = async (enviarCopia) => {
     setMostrarConfirmacion(false)
+    setPedirMailCopia(false)
     setEnviando(true)
     try {
-      await guardarVisita({
+      const json = await guardarVisita({
         ...form,
         celular: parseCelular(form.celular),
         marcas: form.marcas.join(', '),
         productos: form.productos.join(', '),
         totalNuevas,
         totalRecons,
-        enviarCopia, // Flag para el backend
+        enviarCopia,
+        mailCopia: enviarCopia ? mailCopia : '',
       })
-      setResultado('ok')
+      if (json.mailError) {
+        setResultado('mail-error')
+      } else {
+        setResultado('ok')
+      }
       setForm(FORM_INICIAL)
       setCiudadesFiltradas([])
+      setMailCopia('')
     } catch {
       setResultado('error')
     } finally {
@@ -148,25 +157,6 @@ export default function App() {
           </button>
         </div>
       </header>
-
-      {resultado === 'ok' && (
-        <div className="alerta alerta-ok">
-          <span>✓ Visita guardada correctamente.</span>
-          <button className="btn-link" onClick={() => setResultado(null)}>Registrar otra</button>
-        </div>
-      )}
-
-      {resultado === 'validacion' && (
-        <div className="alerta alerta-error">
-          ✗ Completá todos los campos obligatorios antes de enviar.
-        </div>
-      )}
-
-      {resultado === 'error' && (
-        <div className="alerta alerta-error">
-          ✗ Hubo un error al guardar. Intentá de nuevo.
-        </div>
-      )}
 
       <form
         onSubmit={handleSubmit}
@@ -310,27 +300,83 @@ export default function App() {
         <button type="submit" className="btn-submit" disabled={enviando}>
           {enviando ? 'Guardando...' : 'Guardar Visita'}
         </button>
+
+        {resultado === 'ok' && (
+          <div className="alerta alerta-ok">
+            <span>✓ Visita guardada correctamente.</span>
+            <button className="btn-link" onClick={() => setResultado(null)}>Registrar otra</button>
+          </div>
+        )}
+
+        {resultado === 'validacion' && (
+          <div className="alerta alerta-error">
+            ✗ Completá todos los campos obligatorios antes de enviar.
+          </div>
+        )}
+
+        {resultado === 'error' && (
+          <div className="alerta alerta-error">
+            ✗ Hubo un error al guardar. Intentá de nuevo.
+          </div>
+        )}
+
+        {resultado === 'mail-error' && (
+          <div className="alerta alerta-error">
+            ✓ Visita guardada, pero hubo un error al enviar el mail. Revisá los logs de Apps Script.
+          </div>
+        )}
+
       </form>
 
       {mostrarConfirmacion && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3 className="modal-titulo">¿Enviar copia?</h3>
-            <p className="modal-texto">
-              ¿Querés recibir una copia de tus respuestas por mail en un PDF?
-              Se enviará a: <strong>{form.mail}</strong>
-            </p>
-            <div className="modal-acciones">
-              <button className="btn-modal-si" onClick={() => confirmarEnvio(true)}>
-                Sí, enviar copia
-              </button>
-              <button className="btn-modal-no" onClick={() => confirmarEnvio(false)}>
-                No, solo guardar
-              </button>
-              <button className="btn-link" style={{ textAlign: 'center', marginTop: '0.5rem' }} onClick={() => setMostrarConfirmacion(false)}>
-                Cancelar
-              </button>
-            </div>
+            <h3 className="modal-titulo">¿Querés una copia?</h3>
+
+            {!pedirMailCopia ? (
+              <>
+                <p className="modal-texto">
+                  ¿Querés recibir un resumen de esta visita en tu mail?
+                </p>
+                <div className="modal-acciones">
+                  <button className="btn-modal-si" onClick={() => setPedirMailCopia(true)}>
+                    Sí, enviar copia
+                  </button>
+                  <button className="btn-modal-no" onClick={() => confirmarEnvio(false)}>
+                    No, solo guardar
+                  </button>
+                  <button className="btn-link" style={{ textAlign: 'center', marginTop: '0.5rem' }} onClick={() => setMostrarConfirmacion(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="modal-texto">
+                  Ingresá tu mail para recibir el resumen:
+                </p>
+                <input
+                  type="email"
+                  className="modal-input-mail"
+                  placeholder="tu@mail.com"
+                  value={mailCopia}
+                  onChange={e => setMailCopia(e.target.value)}
+                  autoFocus
+                />
+                <div className="modal-acciones" style={{ marginTop: '1rem' }}>
+                  <button
+                    className="btn-modal-si"
+                    onClick={() => confirmarEnvio(true)}
+                    disabled={!mailCopia.includes('@')}
+                  >
+                    Enviar y guardar
+                  </button>
+                  <button className="btn-link" style={{ textAlign: 'center', marginTop: '0.25rem' }} onClick={() => setPedirMailCopia(false)}>
+                    ← Volver
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
