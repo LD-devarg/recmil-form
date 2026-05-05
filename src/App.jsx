@@ -40,6 +40,7 @@ export default function App() {
   const [enviando, setEnviando] = useState(false)
   const [resultado, setResultado] = useState(null) // 'ok' | 'error'
   const [recargando, setRecargando] = useState(false)
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false)
 
   useEffect(() => {
     getDatos()
@@ -68,7 +69,7 @@ export default function App() {
     return num
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     setResultado(null)
 
@@ -79,6 +80,11 @@ export default function App() {
       return
     }
 
+    setMostrarConfirmacion(true)
+  }
+
+  const confirmarEnvio = async (enviarCopia) => {
+    setMostrarConfirmacion(false)
     setEnviando(true)
     try {
       await guardarVisita({
@@ -88,6 +94,7 @@ export default function App() {
         productos: form.productos.join(', '),
         totalNuevas,
         totalRecons,
+        enviarCopia, // Flag para el backend
       })
       setResultado('ok')
       setForm(FORM_INICIAL)
@@ -304,6 +311,29 @@ export default function App() {
           {enviando ? 'Guardando...' : 'Guardar Visita'}
         </button>
       </form>
+
+      {mostrarConfirmacion && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3 className="modal-titulo">¿Enviar copia?</h3>
+            <p className="modal-texto">
+              ¿Querés recibir una copia de tus respuestas por mail en un PDF?
+              Se enviará a: <strong>{form.mail}</strong>
+            </p>
+            <div className="modal-acciones">
+              <button className="btn-modal-si" onClick={() => confirmarEnvio(true)}>
+                Sí, enviar copia
+              </button>
+              <button className="btn-modal-no" onClick={() => confirmarEnvio(false)}>
+                No, solo guardar
+              </button>
+              <button className="btn-link" style={{ textAlign: 'center', marginTop: '0.5rem' }} onClick={() => setMostrarConfirmacion(false)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
