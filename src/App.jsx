@@ -14,6 +14,7 @@ const FORM_INICIAL = {
   rubro: '',
   unidades: '',
   marcas: [],
+  medidas: [],
   cantNuevas: '',
   precioNuevas: '',
   proveedor: '',
@@ -94,6 +95,7 @@ export default function App() {
         ...form,
         celular: parseCelular(form.celular),
         marcas: form.marcas.join(', '),
+        medidas: form.medidas.join(', '),
         productos: form.productos.join(', '),
         totalNuevas,
         totalRecons,
@@ -229,6 +231,23 @@ export default function App() {
               }
               renderInput={(params) => (
                 <TextField {...params} placeholder="Buscá o seleccioná marcas" size="small" />
+              )}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '9px', fontSize: '1rem' } }}
+            />
+          </Field>
+          <Field label="Medidas">
+            <Autocomplete
+              multiple
+              options={['295/80r22.5', '275/80r22.5', '315/80r22.5', '385/65r22.5', '215/75r17.5', '235/75r17.5', '245/70r17.5']}
+              value={form.medidas}
+              onChange={(_, newValue) => setForm(prev => ({ ...prev, medidas: newValue }))}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip label={option} size="small" {...getTagProps({ index })} key={option} />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Buscá o seleccioná medidas" size="small" />
               )}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '9px', fontSize: '1rem' } }}
             />
